@@ -52,6 +52,7 @@ p1 <- ggplot(df_ratings, aes(x=averageRating)) +
       labs(x="Count", y="Average Rating", title="Distribution of average rating for all movies")
 p1
 ```
+
 This provides a better understanding than just calculating the mean, strangely we see an average between 6.5-7.5. The implications of this are complex, more than likely we can suggest that people who particularly like certain movies are more likely to vote. However the lack of scores between 2-5 suggest that people really don't use those votes. 
 
 ```{r  error=FALSE, warning=FALSE, message=FALSE}

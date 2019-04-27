@@ -66,8 +66,9 @@ p1 <- ggplot(df_ratings, aes(x=averageRating)) +
 p1
 ```
 
-![](IMBd_analysis_files/figure-gfm/unnamed-chunk-3-1.png)<!-- --> This
-provides a better understanding than just calculating the mean,
+![](IMBd_analysis_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+This provides a better understanding than just calculating the mean,
 strangely we see an average between 6.5-7.5. The implications of this
 are complex, more than likely we can suggest that people who
 particularly like certain movies are more likely to vote. However the
