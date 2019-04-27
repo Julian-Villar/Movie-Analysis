@@ -9,7 +9,8 @@ output: github_document
 ## Introduction
 Do you miss the good old days? Nostalgia really has a way of messing with our perception of whether things are improving. Clearly in technological terms we are better off, but what about culturally? To question whether art is getting better or worse is completely subjective, but what if we could ask everyone what they think on pieces of art throughout time and rate it, that way we could quantify whether there is improvement or not. Thanks to the Internet Movie Database (IMDb) we can.
 
-Using Data acquired on the 16th July 2018 publically available from IMDb, we will report our findings.
+Using Data acquired that is publicly available from IMDb [here](https://datasets.imdbws.com/), we will report our findings.
+
 ## Tools used 
 ```{r warning=FALSE, message=FALSE}
 library(tidyverse)
@@ -33,81 +34,91 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Ratings
 Perhaps before we search through trends throughout time, it is better to establish a baseline. The average movie rating fits this purpose and naturally falls a good entry point to this report.
 
-We introduce our first dataset, df_ratings. That is the ratings data frame. This is our simplest dataset and provides us the Movie ID that’ll act as a Foreign key between our various datasets, the average rating for a movie (averageRating) and the number of votes for each movie (numVotes).
+We introduce our first dataset, `df_ratings`. That is the ratings dataset which we've imported and named `data`. This is our simplest dataset and provides us the Movie ID that’ll act as a Foreign key between our various datasets, the average rating for a movie (averageRating) and the number of votes for each movie (numVotes).
 
 We provide the first few entries to show this dataset clearly.
 ```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE}
 read_imdb = function(data_path) {
-  path = "C:/Users/julia/Documents/Data Science/Movie-Analysis/"
+  path = getwd()
   read_tsv(paste0(path, data_path), na = "\\N", progress=F)
 }
-df_ratings = read_imdb("data.tsv")
+df_ratings = read_imdb("\\data.tsv")
 df_ratings %>% head()
 ```
-We begin by plotting the average rating of all movies.
-```{r  error=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
-p <- ggplot(df_ratings, aes(x = numVotes, y = averageRating))
-p <-      p +
+We begin by understanding the spread of average ratings regardless of how many votes each movie has.
+```{r error=FALSE, warning=FALSE, message=FALSE}
+p1 <- ggplot(df_ratings, aes(x=averageRating)) + 
+      geom_histogram(binwidth = 0.4) + 
+      labs(x="Count", y="Average Rating", title="Distribution of average rating for all movies")
+p1
+```
+This provides a better understanding than just calculating the mean, strangely we see an average between 6.5-7.5. The implications of this are complex, more than likely we can suggest that people who particularly like certain movies are more likely to vote. However the lack of scores between 2-5 suggest that people really don't use those votes. 
+
+```{r  error=FALSE, warning=FALSE, message=FALSE}
+p2 <-     ggplot(df_ratings, aes(x = numVotes, y = averageRating))
+p2 <-     p2 +
           geom_bin2d() +
           scale_x_log10(labels = comma) +
           scale_y_continuous(breaks = 1:10) +
           scale_fill_viridis_c(labels = comma,option = "E") +
           labs(x="Number of Votes", y="Average Rating", title="Average IMBd rating and how many people vote that way")
-plot(plot)
+plot(p2)
 ```
 
 
 ## Expanding our dataset 
-```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE}
-df_basics = read_imdb("data2.tsv")
+
+We've exhausted this dataset, we'll now extend the data we're looking at to include Movie Titles and their genres/years created. 
+
+```{r error=FALSE, warning=FALSE, message=FALSE}
+df_basics = read_imdb("\\data2.tsv")
 ```
-Now this extensive dataset is added, we'll combine them
-```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE}
+We'll join these together through their unique movie identifier and *improve* our original dataframe.
+
+```{r  error=FALSE, warning=FALSE, message=FALSE}
 df_ratings <- df_ratings %>% left_join(df_basics)
 head(df_ratings)
 ```
-Now with our new extensive data frame we move to perform the real analysis. 
-```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE}
-plot1 <- ggplot(df_ratings %>% filter(titleType == "movie", numVotes >= 10), aes(x = startYear, y = averageRating)) +
-          geom_bin2d() +
+
+Now with our new data frame we move to perform the real analysis on our Movie Ratings, particularly with how the Average Rating changes throughout time.
+
+```{r  error=FALSE, warning=FALSE, message=FALSE}
+df_ratings_filter = df_ratings %>% filter(titleType == "movie", numVotes >= 10) # Cleaning the Data
+
+p3 <-     ggplot(df_ratings_filter, aes(x = startYear, y = averageRating)) 
+
+p3 <-     p3 + geom_bin2d() +
           geom_smooth(color="black") +
           scale_x_continuous() +
           scale_y_continuous(breaks = 1:10) +
           scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') +
-          labs(title="Average movie ratings for all genres")
-plot(plot1)
+          labs(title="Movie Ratings throughout Time")
+plot(p3)
 ```
 
+As somewhat expected here we see that the average rating for a movie has changed quite dramatically, being just over 5 for movies in the 1930s to almost every movie being around a 7. This probably boils down to recency bias, unless movies really have got drastically better... which I **definitely** won't get into!
 
-
-Making a subset was the first challenge, this is as follos 
+Making Horror the subject of this we now need to adapt our code to only include Horror examples. Note that we're not looking for movies such that their genre equals Horror, but rather contains Horror. This is since there exists several movies that have multiple genres! We make us of the fascinating `grepl()` function for this
 ```{r}
-df_ratingsHORROR = subset(df_ratings, grepl("Horror", genres))
+df_ratings_hor = subset(df_ratings, grepl("Horror", genres))
+head(df_ratings_hor,15)
 ```
+
+Now we'll be able to see with the same conditions as before, how the trend looks like for the Horror genre!
 
 ```{r  error=FALSE, warning=FALSE, message=FALSE}
-plot2 <- ggplot(df_ratingsHORROR %>% filter(titleType == "movie", numVotes >= 10), aes(x = startYear, y = averageRating)) +
-          geom_bin2d() +
+df_ratings_hor_filter = df_ratings_hor %>% filter(df_ratings_hor$titleType == "movie", df_ratings_hor$numVotes >= 150) 
+
+p4 <-     ggplot(df_ratings_hor, aes(x = startYear, y = averageRating))
+
+p4 <-     p4 + geom_bin2d() +
           geom_smooth(color="black") +
           scale_x_continuous() +
           scale_y_continuous(breaks = 1:10) +
           scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') + 
           labs(title="Horror movie ratings throughout time")
-plot(plot2)
+plot(p4)
 
 ```
-As previously done for Horror we will now recreate for Comedy
-```{r}
-df_ratingsCOMEDY = subset(df_ratings, grepl("Comedy", genres))
-```
-might be error here pls no
-```{r  error=FALSE, warning=FALSE, message=FALSE}
-plot3 <- ggplot(df_ratingsCOMEDY %>% filter(titleType == "movie", numVotes >= 10), aes(x = startYear, y = averageRating)) +
-          geom_bin2d() +
-          geom_smooth(color="black") +
-          scale_x_continuous() +
-          scale_y_continuous(breaks = 1:10) +
-          scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') + 
-          labs(title="Comedy movie ratings throughout time")
-plot(plot3)
-```
+
+Lo and behold, the rating really is going down. We really could say this doesn't look that bad considering we know there's a potential recency bias in the data. 
