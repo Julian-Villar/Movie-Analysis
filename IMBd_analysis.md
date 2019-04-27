@@ -75,7 +75,7 @@ lack of scores between 2-5 suggest that people really don’t use those
 votes.
 
 ``` r
-p2 <- ggplot(df_ratings, aes(x = numVotes, y = averageRating))
+p2 <-     ggplot(df_ratings, aes(x = numVotes, y = averageRating))
 p2 <-     p2 +
           geom_bin2d() +
           scale_x_log10(labels = comma) +
@@ -92,7 +92,17 @@ plot(p2)
 We’ve exhausted this dataset, we’ll now extend the data we’re looking at
 to include Movie Titles and their genres/years created.
 
-We’ll join these together through their unique movie identifier.
+``` r
+df_basics = read_imdb("\\data2.tsv")
+```
+
+We’ll join these together through their unique movie identifier and
+*improve* our original dataframe.
+
+``` r
+df_ratings <- df_ratings %>% left_join(df_basics)
+head(df_ratings)
+```
 
     ## # A tibble: 6 x 11
     ##   tconst averageRating numVotes titleType primaryTitle originalTitle
@@ -106,32 +116,15 @@ We’ll join these together through their unique movie identifier.
     ## # ... with 5 more variables: isAdult <dbl>, startYear <dbl>,
     ## #   endYear <lgl>, runtimeMinutes <dbl>, genres <chr>
 
-Now with our new extensive data frame we move to perform the real
-analysis on our Movie
-Ratings.
+Now with our new data frame we move to perform the real analysis on our
+Movie Ratings, particularly with how the Average Rating changes
+throughout
+time.
 
 ``` r
-df_ratings %>% filter(titleType == "movie", numVotes >= 10) # Cleaning the Data
-```
+df_ratings_filter = df_ratings %>% filter(titleType == "movie", numVotes >= 10) # Cleaning the Data
 
-    ## # A tibble: 172,200 x 11
-    ##    tconst averageRating numVotes titleType primaryTitle originalTitle
-    ##    <chr>          <dbl>    <dbl> <chr>     <chr>        <chr>        
-    ##  1 tt000~           5.5       78 movie     Miss Jerry   Miss Jerry   
-    ##  2 tt000~           5.2      290 movie     The Corbett~ The Corbett-~
-    ##  3 tt000~           6.3       39 movie     Soldiers of~ Soldiers of ~
-    ##  4 tt000~           6.2      508 movie     The Story o~ The Story of~
-    ##  5 tt000~           4.8       15 movie     Robbery Und~ Robbery Unde~
-    ##  6 tt000~           2.9       11 movie     Hamlet       Amleto       
-    ##  7 tt000~           4.3       10 movie     Don Quijote  Don Quijote  
-    ##  8 tt000~           4.8       33 movie     The Fairylo~ The Fairylog~
-    ##  9 tt000~           4.6       10 movie     Faldgruben   Faldgruben   
-    ## 10 tt000~           5.1       19 movie     Hamlet, Pri~ Hamlet       
-    ## # ... with 172,190 more rows, and 5 more variables: isAdult <dbl>,
-    ## #   startYear <dbl>, endYear <lgl>, runtimeMinutes <dbl>, genres <chr>
-
-``` r
-p3 <- ggplot(df_ratings, aes(x = startYear, y = averageRating)) 
+p3 <-     ggplot(df_ratings_filter, aes(x = startYear, y = averageRating)) 
 
 p3 <-     p3 + geom_bin2d() +
           geom_smooth(color="black") +
@@ -151,11 +144,14 @@ bias, unless movies really have got drastically better… which I
 **definitely** won’t get into\!
 
 Making Horror the subject of this we now need to adapt our code to only
-include Horror
+include Horror examples. Note that we’re not looking for movies such
+that their genre equals Horror, but rather contains Horror. This is
+since there exists several movies that have multiple genres\! We make us
+of the fascinating `grepl()` function for this
 
 ``` r
-df_ratingsHORROR = subset(df_ratings, grepl("Horror", genres))
-head(df_ratingsHORROR,15)
+df_ratings_hor = subset(df_ratings, grepl("Horror", genres))
+head(df_ratings_hor,15)
 ```
 
     ## # A tibble: 15 x 11
@@ -179,35 +175,26 @@ head(df_ratingsHORROR,15)
     ## # ... with 5 more variables: isAdult <dbl>, startYear <dbl>,
     ## #   endYear <lgl>, runtimeMinutes <dbl>, genres <chr>
 
+Now we’ll be able to see with the same conditions as before, how the
+trend looks like for the Horror
+genre\!
+
 ``` r
-plot2 <- ggplot(df_ratingsHORROR %>% filter(titleType == "movie", numVotes >= 10), aes(x = startYear, y = averageRating)) +
-          geom_bin2d() +
+df_ratings_hor_filter = df_ratings_hor %>% filter(df_ratings_hor$titleType == "movie", df_ratings_hor$numVotes >= 150) 
+
+p4 <-     ggplot(df_ratings_hor, aes(x = startYear, y = averageRating))
+
+p4 <-     p4 + geom_bin2d() +
           geom_smooth(color="black") +
           scale_x_continuous() +
           scale_y_continuous(breaks = 1:10) +
           scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') + 
-          labs(title="Horror movie ratings throughout time")
-plot(plot2)
+          labs(title="Horror movie ratings through time")
+plot(p4)
 ```
 
 ![](IMBd_analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
-As previously done for Horror we will now recreate for
-Comedy
-
-``` r
-df_ratingsCOMEDY = subset(df_ratings, grepl("Comedy", genres))
-```
-
-``` r
-plot3 <- ggplot(df_ratingsCOMEDY %>% filter(titleType == "movie", numVotes >= 10), aes(x = startYear, y = averageRating)) +
-          geom_bin2d() +
-          geom_smooth(color="black") +
-          scale_x_continuous() +
-          scale_y_continuous(breaks = 1:10) +
-          scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') + 
-          labs(title="Comedy movie ratings throughout time")
-plot(plot3)
-```
-
-![](IMBd_analysis_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+Lo and behold, the rating really is going down. We really could say this
+doesn’t look as bad as it really is considering we know there’s a
+potential recency bias in the data.

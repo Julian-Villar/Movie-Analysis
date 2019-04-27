@@ -116,9 +116,9 @@ p4 <-     p4 + geom_bin2d() +
           scale_x_continuous() +
           scale_y_continuous(breaks = 1:10) +
           scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') + 
-          labs(title="Horror movie ratings throughout time")
+          labs(title="Horror movie ratings through time")
 plot(p4)
 
 ```
 
-Lo and behold, the rating really is going down. We really could say this doesn't look that bad considering we know there's a potential recency bias in the data. 
+Lo and behold, the rating really is going down. We really could say this doesn't look as bad as it really is considering we know there's a potential recency bias in the data. 
