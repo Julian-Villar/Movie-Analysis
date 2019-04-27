@@ -55,7 +55,7 @@ We provide the first few entries to show this dataset clearly.
     ## 6 tt0000006           5.5       96
 
 We begin by plotting the average rating of all movies.
-
+![](movie_analysis4Github_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 ![](imdb-1.png)
 
 ## Expanding our dataset

@@ -45,7 +45,7 @@ df_ratings = read_imdb("data.tsv")
 df_ratings %>% head()
 ```
 We begin by plotting the average rating of all movies.
-```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
+```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE}
 plot <- ggplot(df_ratings, aes(x = numVotes, y = averageRating)) +
           geom_bin2d() +
           scale_x_log10(labels = comma) +
