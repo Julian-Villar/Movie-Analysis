@@ -182,7 +182,7 @@ genre\!
 ``` r
 df_ratings_hor_filter = df_ratings_hor %>% filter(df_ratings_hor$titleType == "movie", df_ratings_hor$numVotes >= 150) 
 
-p4 <-     ggplot(df_ratings_hor, aes(x = startYear, y = averageRating))
+p4 <-     ggplot(df_ratings_hor_filter, aes(x = startYear, y = averageRating))
 
 p4 <-     p4 + geom_bin2d() +
           geom_smooth(color="black") +
