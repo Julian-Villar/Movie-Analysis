@@ -55,26 +55,75 @@ We provide the first few entries to show this dataset clearly.
     ## 6 tt0000006           5.5       96
 
 We begin by plotting the average rating of all movies.
-![](movie_analysis4Github_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-![](imdb-1.png)
+
+``` r
+p <- ggplot(df_ratings, aes(x = numVotes, y = averageRating))
+p <-      p +
+          geom_bin2d() +
+          scale_x_log10(labels = comma) +
+          scale_y_continuous(breaks = 1:10) +
+          scale_fill_viridis_c(labels = comma,option = "E") +
+          labs(x="Number of Votes", y="Average Rating", title="Average IMBd rating and how many people vote that way")
+plot(plot)
+```
 
 ## Expanding our dataset
 
 Now this extensive dataset is added, we’ll combine them
 
+    ## # A tibble: 6 x 11
+    ##   tconst averageRating numVotes titleType primaryTitle originalTitle
+    ##   <chr>          <dbl>    <dbl> <chr>     <chr>        <chr>        
+    ## 1 tt000~           5.8     1491 short     Carmencita   Carmencita   
+    ## 2 tt000~           6.3      181 short     Le clown et~ Le clown et ~
+    ## 3 tt000~           6.6     1127 short     Pauvre Pier~ Pauvre Pierr~
+    ## 4 tt000~           6.4      110 short     Un bon bock  Un bon bock  
+    ## 5 tt000~           6.2     1829 short     Blacksmith ~ Blacksmith S~
+    ## 6 tt000~           5.5       96 short     Chinese Opi~ Chinese Opiu~
+    ## # ... with 5 more variables: isAdult <dbl>, startYear <dbl>,
+    ## #   endYear <lgl>, runtimeMinutes <dbl>, genres <chr>
+
 Now with our new extensive data frame we move to perform the real
 analysis.
+![](IMBd_analysis_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-Making a subset was the first challenge, this is as follos
+Making a subset was the first challenge, this is as
+follos
 
 ``` r
 df_ratingsHORROR = subset(df_ratings, grepl("Horror", genres))
 ```
 
-As previously done for Horror we will now recreate for Comedy
+``` r
+plot2 <- ggplot(df_ratingsHORROR %>% filter(titleType == "movie", numVotes >= 10), aes(x = startYear, y = averageRating)) +
+          geom_bin2d() +
+          geom_smooth(color="black") +
+          scale_x_continuous() +
+          scale_y_continuous(breaks = 1:10) +
+          scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') + 
+          labs(title="Horror movie ratings throughout time")
+plot(plot2)
+```
+
+![](IMBd_analysis_files/figure-gfm/unnamed-chunk-8-1.png)<!-- --> As
+previously done for Horror we will now recreate for Comedy
 
 ``` r
 df_ratingsCOMEDY = subset(df_ratings, grepl("Comedy", genres))
 ```
 
-might be error here pls no
+might be error here pls
+no
+
+``` r
+plot3 <- ggplot(df_ratingsCOMEDY %>% filter(titleType == "movie", numVotes >= 10), aes(x = startYear, y = averageRating)) +
+          geom_bin2d() +
+          geom_smooth(color="black") +
+          scale_x_continuous() +
+          scale_y_continuous(breaks = 1:10) +
+          scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') + 
+          labs(title="Comedy movie ratings throughout time")
+plot(plot3)
+```
+
+![](IMBd_analysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->

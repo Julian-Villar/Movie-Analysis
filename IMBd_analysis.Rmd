@@ -45,30 +45,29 @@ df_ratings = read_imdb("data.tsv")
 df_ratings %>% head()
 ```
 We begin by plotting the average rating of all movies.
-```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE}
-plot <- ggplot(df_ratings, aes(x = numVotes, y = averageRating)) +
+```{r  error=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
+p <- ggplot(df_ratings, aes(x = numVotes, y = averageRating))
+p <-      p +
           geom_bin2d() +
           scale_x_log10(labels = comma) +
           scale_y_continuous(breaks = 1:10) +
           scale_fill_viridis_c(labels = comma,option = "E") +
           labs(x="Number of Votes", y="Average Rating", title="Average IMBd rating and how many people vote that way")
-
-ggsave("imdb-1.png", plot, width=4, height=3)
 plot(plot)
 ```
-![](imdb-1.png)
+
 
 ## Expanding our dataset 
-```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
-df_basics = read_imdb("title.basics.tsv")
+```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE}
+df_basics = read_imdb("data2.tsv")
 ```
 Now this extensive dataset is added, we'll combine them
-```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
+```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE}
 df_ratings <- df_ratings %>% left_join(df_basics)
 head(df_ratings)
 ```
 Now with our new extensive data frame we move to perform the real analysis. 
-```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
+```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE}
 plot1 <- ggplot(df_ratings %>% filter(titleType == "movie", numVotes >= 10), aes(x = startYear, y = averageRating)) +
           geom_bin2d() +
           geom_smooth(color="black") +
@@ -77,17 +76,16 @@ plot1 <- ggplot(df_ratings %>% filter(titleType == "movie", numVotes >= 10), aes
           scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') +
           labs(title="Average movie ratings for all genres")
 plot(plot1)
-ggsave("imdb-2.png", plot1, width=4, height=3)
 ```
 
 
 
 Making a subset was the first challenge, this is as follos 
-```{r eval=FALSE}
+```{r}
 df_ratingsHORROR = subset(df_ratings, grepl("Horror", genres))
 ```
 
-```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
+```{r  error=FALSE, warning=FALSE, message=FALSE}
 plot2 <- ggplot(df_ratingsHORROR %>% filter(titleType == "movie", numVotes >= 10), aes(x = startYear, y = averageRating)) +
           geom_bin2d() +
           geom_smooth(color="black") +
@@ -95,16 +93,15 @@ plot2 <- ggplot(df_ratingsHORROR %>% filter(titleType == "movie", numVotes >= 10
           scale_y_continuous(breaks = 1:10) +
           scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') + 
           labs(title="Horror movie ratings throughout time")
-ggsave("imdb-3.png", plot2, width=4, height=3)
 plot(plot2)
 
 ```
 As previously done for Horror we will now recreate for Comedy
-```{r eval=FALSE}
+```{r}
 df_ratingsCOMEDY = subset(df_ratings, grepl("Comedy", genres))
 ```
 might be error here pls no
-```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
+```{r  error=FALSE, warning=FALSE, message=FALSE}
 plot3 <- ggplot(df_ratingsCOMEDY %>% filter(titleType == "movie", numVotes >= 10), aes(x = startYear, y = averageRating)) +
           geom_bin2d() +
           geom_smooth(color="black") +
@@ -112,7 +109,5 @@ plot3 <- ggplot(df_ratingsCOMEDY %>% filter(titleType == "movie", numVotes >= 10
           scale_y_continuous(breaks = 1:10) +
           scale_fill_viridis_c(option = "plasma", labels = comma, trans = 'log10') + 
           labs(title="Comedy movie ratings throughout time")
-ggsave("imdb-4.png", plot3, width=4, height=3)
 plot(plot3)
-
 ```
